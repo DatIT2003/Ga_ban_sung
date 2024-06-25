@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Point;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 
 public class GameActivity extends AppCompatActivity {
@@ -35,4 +36,13 @@ public class GameActivity extends AppCompatActivity {
         super.onResume();
         gameView.resume();
     }
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_SPACE && event.getAction() == KeyEvent.ACTION_DOWN) {
+            gameView.newBullet();
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
 }

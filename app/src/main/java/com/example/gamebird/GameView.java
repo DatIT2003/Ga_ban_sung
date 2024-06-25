@@ -11,6 +11,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
@@ -88,6 +89,10 @@ public class GameView extends SurfaceView implements Runnable {
 
         random = new Random();
 
+        // Enable focus to handle key events
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        requestFocus();
     }
 
     @Override
@@ -166,11 +171,11 @@ public class GameView extends SurfaceView implements Runnable {
                     return;
                 }
 
-                int bound = (int) (30 * screenRatioX);
+                int bound = (int) (15 * screenRatioX); // Reduced from 30 to 15
                 bird.speed = random.nextInt(bound);
 
-                if (bird.speed < 10 * screenRatioX)
-                    bird.speed = (int) (10 * screenRatioX);
+                if (bird.speed < 5 * screenRatioX) // Reduced from 10 to 5
+                    bird.speed = (int) (5 * screenRatioX);
 
                 bird.x = screenX;
                 bird.y = random.nextInt(screenY - bird.height);
@@ -272,25 +277,31 @@ public class GameView extends SurfaceView implements Runnable {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (event.getX() < screenX / 2) {
+                if (event.getY() < screenY / 2) {
                     flight.isGoingUp = true;
+                } else {
+                    flight.isGoingUp = false;
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 flight.isGoingUp = false;
-                if (event.getX() > screenX / 2)
-                    flight.toShoot++;
                 break;
         }
-
         return true;
     }
 
-    public void newBullet() {
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            newBullet();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
+    public void newBullet() {
         if (!prefs.getBoolean("isMute", false))
             soundPool.play(sound, 1, 1, 0, 0, 1);
 
@@ -298,6 +309,5 @@ public class GameView extends SurfaceView implements Runnable {
         bullet.x = flight.x + flight.width;
         bullet.y = flight.y + (flight.height / 2);
         bullets.add(bullet);
-
     }
 }
